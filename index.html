@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Buonomo's house</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    /* Modalità scura */
+    body.dark-mode {
+    background-color: #121212 !important;
+    color: #f1f1f1 !important;
+    }
+
+    .dark-mode .card {
+    background-color: #1e1e1e !important;
+    border-color: #333 !important;
+    color: #f1f1f1 !important;
+    }
+
+    .dark-mode h3,
+    .dark-mode p,
+    .dark-mode li,
+    .dark-mode a {
+    color: #f1f1f1 !important;
+    }
+
+    .dark-mode footer {
+    background-color: #1a1a1a !important;
+    color: #ccc !important;
+    }
+
+    .dark-mode .navbar {
+    background-color: #1e1e1e !important;
+    border-bottom: 1px solid #444 !important;
+    }
+
+    .dark-mode .navbar .navbar-brand,
+    .dark-mode .navbar .nav-link,
+    .dark-mode .form-check-label {
+    color: #f1f1f1 !important;
+    }
+
+
+    .theme-toggle {
+      cursor: pointer;
+    }
+
+    /* Animazioni di fade */
+    .card {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .card:hover {
+    transform: scale(1.02);
+    opacity: 0.95;
+    }
+
+    body {
+    transition: background-color 0.5s ease, color 0.5s ease;
+    }
+
+  </style>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body class="bg-light text-dark">
+
+  <nav class="navbar navbar-expand-lg bg-light border-bottom">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold" href="#">Buonomo's house</a>
+      <div class="d-flex align-items-center">
+        <i id="themeIcon" class="bi bi-sun-fill me-2"></i>
+        <input class="form-check-input theme-toggle" type="checkbox" id="themeSwitch">
+      </div>
+    </div>
+  </nav>
+
+  <div class="container my-5">
+    <div class="row">
+      <div class="col-md-6 mb-4">
+        <div class="card p-3">
+          <h3 id="aperol">Aperol Spritz</h3>
+          <ul class="list-unstyled">
+            <li>3 oz di Prosecco</li>
+            <li>2 oz di Aperol</li>
+            <li>1 oz di Soda</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-md-6 mb-4">
+        <div class="card p-3">
+          <h3 id="hugo">Hugo Spritz</h3>
+          <ul class="list-unstyled">
+            <li>5 oz di Prosecco</li>
+            <li>1 oz di Fiori di Sambuco</li>
+            <li>3 oz di Soda</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-md-6 mb-4">
+        <div class="card p-3">
+          <h3 id="glemon">Gin Lemon</h3>
+          <ul class="list-unstyled">
+            <li>2 oz di Gin</li>
+            <li>3 oz di Lemon</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-md-6 mb-4">
+        <div class="card p-3">
+          <h3 id="gtonic">Gin Tonic</h3>
+          <ul class="list-unstyled">
+            <li>2 oz di Gin</li>
+            <li>3 oz di Tonica</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="text-center py-3 border-top">
+    <p>© 2025 Buonomo's house</p>
+  </footer>
+
+  <script>
+    const themeSwitch = document.getElementById('themeSwitch');
+    const themeIcon = document.getElementById('themeIcon');
+  
+    themeSwitch.addEventListener('change', function () {
+      document.body.classList.toggle('dark-mode');
+      document.body.classList.toggle('bg-light');
+      document.body.classList.toggle('text-dark');
+  
+      if (document.body.classList.contains('dark-mode')) {
+        themeIcon.classList.replace('bi-sun-fill', 'bi-moon-stars-fill');
+      } else {
+        themeIcon.classList.replace('bi-moon-stars-fill', 'bi-sun-fill');
+      }
+    });
+  </script>
+  
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
