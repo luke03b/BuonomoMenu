@@ -26,6 +26,9 @@ body.dark-mode {
 .dark-mode .form-check-label {
   color: #f1f1f1 !important;
 }
+.dark-mode .badge.bg-warning {
+  color: #212529 !important;
+}
 .theme-toggle {
   cursor: pointer;
 }
@@ -47,4 +50,13 @@ body.dark-mode {
 }
 body {
   transition: background-color 0.5s ease, color 0.5s ease;
+}
+.order-btn {
+  margin-top: 15px;
+}
+.order-item {
+  transition: all 0.3s ease;
+}
+.order-item:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }

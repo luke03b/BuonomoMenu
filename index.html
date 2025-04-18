@@ -35,6 +35,17 @@
       <button class="btn btn-success" onclick="addDrink()">Aggiungi</button>
     </div>
 
+    <!-- Sezione ordini (solo admin) -->
+    <div id="ordersSection" class="mb-4" style="display:none;">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5>Ordini</h5>
+        <button class="btn btn-danger btn-sm" onclick="clearAllOrders()">Cancella tutti</button>
+      </div>
+      <div id="ordersList" class="mb-4">
+        <!-- Gli ordini verranno aggiunti qui dinamicamente -->
+      </div>
+    </div>
+
     <!-- Lista drink -->
     <div class="row" id="drinkList"></div>
   </div>
