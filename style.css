@@ -1,0 +1,50 @@
+body.dark-mode {
+  background-color: #121212 !important;
+  color: #f1f1f1 !important;
+}
+.dark-mode .card {
+  background-color: #1e1e1e !important;
+  border-color: #333 !important;
+  color: #f1f1f1 !important;
+}
+.dark-mode h3,
+.dark-mode p,
+.dark-mode li,
+.dark-mode a {
+  color: #f1f1f1 !important;
+}
+.dark-mode footer {
+  background-color: #1a1a1a !important;
+  color: #ccc !important;
+}
+.dark-mode .navbar {
+  background-color: #1e1e1e !important;
+  border-bottom: 1px solid #444 !important;
+}
+.dark-mode .navbar .navbar-brand,
+.dark-mode .navbar .nav-link,
+.dark-mode .form-check-label {
+  color: #f1f1f1 !important;
+}
+.theme-toggle {
+  cursor: pointer;
+}
+.card {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  position: relative;
+}
+.card:hover {
+  transform: scale(1.02);
+  opacity: 0.95;
+}
+.delete-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  color: red;
+  font-size: 1.2rem;
+}
+body {
+  transition: background-color 0.5s ease, color 0.5s ease;
+}

@@ -1,227 +1,50 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Buonomo's house</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-  <style>
-    body.dark-mode {
-      background-color: #121212 !important;
-      color: #f1f1f1 !important;
-    }
-    .dark-mode .card {
-      background-color: #1e1e1e !important;
-      border-color: #333 !important;
-      color: #f1f1f1 !important;
-    }
-    .dark-mode h3,
-    .dark-mode p,
-    .dark-mode li,
-    .dark-mode a {
-      color: #f1f1f1 !important;
-    }
-    .dark-mode footer {
-      background-color: #1a1a1a !important;
-      color: #ccc !important;
-    }
-    .dark-mode .navbar {
-      background-color: #1e1e1e !important;
-      border-bottom: 1px solid #444 !important;
-    }
-    .dark-mode .navbar .navbar-brand,
-    .dark-mode .navbar .nav-link,
-    .dark-mode .form-check-label {
-      color: #f1f1f1 !important;
-    }
-    .theme-toggle {
-      cursor: pointer;
-    }
-    .card {
-      transition: transform 0.3s ease, opacity 0.3s ease;
-      position: relative;
-    }
-    .card:hover {
-      transform: scale(1.02);
-      opacity: 0.95;
-    }
-    .delete-icon {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      cursor: pointer;
-      color: red;
-      font-size: 1.2rem;
-    }
-    body {
-      transition: background-color 0.5s ease, color 0.5s ease;
-    }
-  </style>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body class="bg-light text-dark">
-
-<nav class="navbar navbar-expand-lg bg-light border-bottom">
-  <div class="container-fluid">
-    <a class="navbar-brand fw-bold" href="#">Buonomo's house</a>
-    <div class="d-flex align-items-center">
-      <i id="themeIcon" class="bi bi-sun-fill me-2"></i>
-      <input class="form-check-input theme-toggle" type="checkbox" id="themeSwitch">
+  <nav class="navbar navbar-expand-lg bg-light border-bottom">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold" href="#">Buonomo's house</a>
+      <div class="d-flex align-items-center">
+        <i id="themeIcon" class="bi bi-sun-fill me-2"></i>
+        <input class="form-check-input theme-toggle" type="checkbox" id="themeSwitch" />
+      </div>
     </div>
+  </nav>
+
+  <div class="container my-4">
+    <!-- Login Form -->
+    <div id="loginForm" class="mb-4">
+      <input id="username" class="form-control mb-2" placeholder="Nome utente" />
+      <input id="password" type="password" class="form-control mb-2" placeholder="Password" />
+      <button class="btn btn-primary" onclick="login()">Login</button>
+    </div>
+
+    <!-- Aggiunta Drink (solo admin) -->
+    <div id="addDrinkForm" class="mb-4" style="display:none;">
+      <h5>Aggiungi un nuovo drink</h5>
+      <input id="drinkName" class="form-control mb-2" placeholder="Nome drink" />
+      <textarea id="drinkIngredients" class="form-control mb-2" placeholder="Ingredienti (uno per riga)"></textarea>
+      <button class="btn btn-success" onclick="addDrink()">Aggiungi</button>
+    </div>
+
+    <!-- Lista drink -->
+    <div class="row" id="drinkList"></div>
   </div>
-</nav>
 
-<div class="container my-4">
-  <!-- Login Form -->
-  <div id="loginForm" class="mb-4">
-    <input id="username" class="form-control mb-2" placeholder="Nome utente">
-    <input id="password" type="password" class="form-control mb-2" placeholder="Password">
-    <button class="btn btn-primary" onclick="login()">Login</button>
-  </div>
+  <footer class="text-center py-3 border-top">
+    <p>© 2025 Buonomo's house</p>
+  </footer>
 
-  <!-- Aggiunta Drink (solo admin) -->
-  <div id="addDrinkForm" class="mb-4" style="display:none;">
-    <h5>Aggiungi un nuovo drink</h5>
-    <input id="drinkName" class="form-control mb-2" placeholder="Nome drink">
-    <textarea id="drinkIngredients" class="form-control mb-2" placeholder="Ingredienti (uno per riga)"></textarea>
-    <button class="btn btn-success" onclick="addDrink()">Aggiungi</button>
-  </div>
-
-  <!-- Lista drink -->
-  <div class="row" id="drinkList"></div>
-</div>
-
-<footer class="text-center py-3 border-top">
-  <p>© 2025 Buonomo's house</p>
-</footer>
-
-<!-- Firebase -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyDFJm4xyAXFPkCLuJK4Q7U5CQi5vyur5ZA",
-    authDomain: "buonomo-s-menu.firebaseapp.com",
-    projectId: "buonomo-s-menu",
-    storageBucket: "buonomo-s-menu.firebasestorage.app",
-    messagingSenderId: "288056046537",
-    appId: "1:288056046537:web:c28823516d7ddc4951ae18"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
-
-  const drinkList = document.getElementById("drinkList");
-  const loginForm = document.getElementById("loginForm");
-  const addDrinkForm = document.getElementById("addDrinkForm");
-  let isAdmin = false;
-
-  
-    function renderDrinks(drinks) {
-      drinkList.innerHTML = drinks.map(drink => `
-        <div class="col-md-6 mb-4">
-          <div class="card p-3 position-relative" data-id="${drink.id}">
-            ${isAdmin ? `<i class="bi bi-trash delete-icon"></i>` : ''}
-            <h3>${drink.name}</h3>
-            <ul class="list-unstyled">
-              ${drink.ingredients.map(i => `<li>${i}</li>`).join('')}
-            </ul>
-          </div>
-        </div>
-      `).join("");
-
-      if (isAdmin) {
-        document.querySelectorAll(".delete-icon").forEach(icon => {
-          icon.addEventListener("click", async (e) => {
-            const card = e.target.closest(".card");
-            const id = card.getAttribute("data-id");
-            if (confirm("Sei sicuro di voler eliminare questo drink?")) {
-              try {
-                await deleteDoc(doc(db, "drinks", id));
-                fetchDrinks();
-              } catch (e) {
-                alert("Errore durante l'eliminazione: " + e.message);
-              }
-            }
-          });
-        });
-      }
-
-
-  }
-
-  async function fetchDrinks() {
-    const querySnapshot = await getDocs(collection(db, "drinks"));
-    const drinks = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    renderDrinks(drinks);
-  }
-
-  window.login = async function () {
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value;
-    const email = `${username}@buonomo.fake`;
-
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-    } catch (e) {
-      alert("Login fallito: " + e.message);
-    }
-  }
-
-  window.addDrink = async function () {
-    const name = document.getElementById("drinkName").value;
-    const ingredients = document.getElementById("drinkIngredients").value.split("\n").map(s => s.trim()).filter(Boolean);
-    if (!name || ingredients.length === 0) return;
-
-    try {
-      await addDoc(collection(db, "drinks"), { name, ingredients });
-      fetchDrinks();
-    } catch (e) {
-      alert("Errore: " + e.message);
-    }
-  }
-
-  window.deleteDrink = async function (id) {
-    if (!confirm("Sei sicuro di voler eliminare questo drink?")) return;
-    try {
-      await deleteDoc(doc(db, "drinks", id));
-      fetchDrinks();
-    } catch (e) {
-      alert("Errore: " + e.message);
-    }
-  }
-
-  onAuthStateChanged(auth, (user) => {
-    if (user && user.email === "drgslayer@buonomo.fake") {
-      loginForm.style.display = "none";
-      addDrinkForm.style.display = "block";
-      isAdmin = true;
-    }
-    fetchDrinks();
-  });
-</script>
-
-<!-- Tema chiaro/scuro -->
-<script>
-  const themeSwitch = document.getElementById('themeSwitch');
-  const themeIcon = document.getElementById('themeIcon');
-
-  themeSwitch.addEventListener('change', function () {
-    document.body.classList.toggle('dark-mode');
-    document.body.classList.toggle('bg-light');
-    document.body.classList.toggle('text-dark');
-
-    if (document.body.classList.contains('dark-mode')) {
-      themeIcon.classList.replace('bi-sun-fill', 'bi-moon-stars-fill');
-    } else {
-      themeIcon.classList.replace('bi-moon-stars-fill', 'bi-sun-fill');
-    }
-  });
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module" src="firebase.js"></script>
+  <script src="theme.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
