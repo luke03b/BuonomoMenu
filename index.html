@@ -40,10 +40,19 @@
     }
     .card {
       transition: transform 0.3s ease, opacity 0.3s ease;
+      position: relative;
     }
     .card:hover {
       transform: scale(1.02);
       opacity: 0.95;
+    }
+    .delete-icon {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+      color: red;
+      font-size: 1.2rem;
     }
     body {
       transition: background-color 0.5s ease, color 0.5s ease;
@@ -89,10 +98,9 @@
 <!-- Firebase -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
   import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-  // Your web app's Firebase configuration
   const firebaseConfig = {
     apiKey: "AIzaSyDFJm4xyAXFPkCLuJK4Q7U5CQi5vyur5ZA",
     authDomain: "buonomo-s-menu.firebaseapp.com",
@@ -109,23 +117,45 @@
   const drinkList = document.getElementById("drinkList");
   const loginForm = document.getElementById("loginForm");
   const addDrinkForm = document.getElementById("addDrinkForm");
+  let isAdmin = false;
 
-  function renderDrinks(drinks) {
-    drinkList.innerHTML = drinks.map(drink => `
-      <div class="col-md-6 mb-4">
-        <div class="card p-3">
-          <h3>${drink.name}</h3>
-          <ul class="list-unstyled">
-            ${drink.ingredients.map(i => `<li>${i}</li>`).join('')}
-          </ul>
+  
+    function renderDrinks(drinks) {
+      drinkList.innerHTML = drinks.map(drink => `
+        <div class="col-md-6 mb-4">
+          <div class="card p-3 position-relative" data-id="${drink.id}">
+            ${isAdmin ? `<i class="bi bi-trash delete-icon"></i>` : ''}
+            <h3>${drink.name}</h3>
+            <ul class="list-unstyled">
+              ${drink.ingredients.map(i => `<li>${i}</li>`).join('')}
+            </ul>
+          </div>
         </div>
-      </div>
-    `).join("");
+      `).join("");
+
+      if (isAdmin) {
+        document.querySelectorAll(".delete-icon").forEach(icon => {
+          icon.addEventListener("click", async (e) => {
+            const card = e.target.closest(".card");
+            const id = card.getAttribute("data-id");
+            if (confirm("Sei sicuro di voler eliminare questo drink?")) {
+              try {
+                await deleteDoc(doc(db, "drinks", id));
+                fetchDrinks();
+              } catch (e) {
+                alert("Errore durante l'eliminazione: " + e.message);
+              }
+            }
+          });
+        });
+      }
+
+
   }
 
   async function fetchDrinks() {
     const querySnapshot = await getDocs(collection(db, "drinks"));
-    const drinks = querySnapshot.docs.map(doc => doc.data());
+    const drinks = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     renderDrinks(drinks);
   }
 
@@ -154,14 +184,24 @@
     }
   }
 
+  window.deleteDrink = async function (id) {
+    if (!confirm("Sei sicuro di voler eliminare questo drink?")) return;
+    try {
+      await deleteDoc(doc(db, "drinks", id));
+      fetchDrinks();
+    } catch (e) {
+      alert("Errore: " + e.message);
+    }
+  }
+
   onAuthStateChanged(auth, (user) => {
     if (user && user.email === "drgslayer@buonomo.fake") {
       loginForm.style.display = "none";
       addDrinkForm.style.display = "block";
+      isAdmin = true;
     }
+    fetchDrinks();
   });
-
-  fetchDrinks();
 </script>
 
 <!-- Tema chiaro/scuro -->
