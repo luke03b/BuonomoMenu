@@ -11,49 +11,40 @@
       background-color: #121212 !important;
       color: #f1f1f1 !important;
     }
-
     .dark-mode .card {
       background-color: #1e1e1e !important;
       border-color: #333 !important;
       color: #f1f1f1 !important;
     }
-
     .dark-mode h3,
     .dark-mode p,
     .dark-mode li,
     .dark-mode a {
       color: #f1f1f1 !important;
     }
-
     .dark-mode footer {
       background-color: #1a1a1a !important;
       color: #ccc !important;
     }
-
     .dark-mode .navbar {
       background-color: #1e1e1e !important;
       border-bottom: 1px solid #444 !important;
     }
-
     .dark-mode .navbar .navbar-brand,
     .dark-mode .navbar .nav-link,
     .dark-mode .form-check-label {
       color: #f1f1f1 !important;
     }
-
     .theme-toggle {
       cursor: pointer;
     }
-
     .card {
       transition: transform 0.3s ease, opacity 0.3s ease;
     }
-
     .card:hover {
       transform: scale(1.02);
       opacity: 0.95;
     }
-
     body {
       transition: background-color 0.5s ease, color 0.5s ease;
     }
@@ -61,116 +52,136 @@
 </head>
 <body class="bg-light text-dark">
 
-  <nav class="navbar navbar-expand-lg bg-light border-bottom">
-    <div class="container-fluid">
-      <a class="navbar-brand fw-bold" href="#">Buonomo's house</a>
-      <div class="d-flex align-items-center">
-        <i id="themeIcon" class="bi bi-sun-fill me-2"></i>
-        <input class="form-check-input theme-toggle" type="checkbox" id="themeSwitch">
-      </div>
+<nav class="navbar navbar-expand-lg bg-light border-bottom">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold" href="#">Buonomo's house</a>
+    <div class="d-flex align-items-center">
+      <i id="themeIcon" class="bi bi-sun-fill me-2"></i>
+      <input class="form-check-input theme-toggle" type="checkbox" id="themeSwitch">
     </div>
-  </nav>
+  </div>
+</nav>
 
-  <div class="container my-5">
-    <!-- Il form e i drink verranno aggiunti dinamicamente -->
-    <div class="row"></div>
+<div class="container my-4">
+  <!-- Login Form -->
+  <div id="loginForm" class="mb-4">
+    <input id="username" class="form-control mb-2" placeholder="Nome utente">
+    <input id="password" type="password" class="form-control mb-2" placeholder="Password">
+    <button class="btn btn-primary" onclick="login()">Login</button>
   </div>
 
-  <footer class="text-center py-3 border-top">
-    <p>© 2025 Buonomo's house</p>
-  </footer>
+  <!-- Aggiunta Drink (solo admin) -->
+  <div id="addDrinkForm" class="mb-4" style="display:none;">
+    <h5>Aggiungi un nuovo drink</h5>
+    <input id="drinkName" class="form-control mb-2" placeholder="Nome drink">
+    <textarea id="drinkIngredients" class="form-control mb-2" placeholder="Ingredienti (uno per riga)"></textarea>
+    <button class="btn btn-success" onclick="addDrink()">Aggiungi</button>
+  </div>
 
-  <!-- Modalità chiaro/scuro -->
-  <script>
-    const themeSwitch = document.getElementById('themeSwitch');
-    const themeIcon = document.getElementById('themeIcon');
+  <!-- Lista drink -->
+  <div class="row" id="drinkList"></div>
+</div>
 
-    themeSwitch.addEventListener('change', function () {
-      document.body.classList.toggle('dark-mode');
-      document.body.classList.toggle('bg-light');
-      document.body.classList.toggle('text-dark');
+<footer class="text-center py-3 border-top">
+  <p>© 2025 Buonomo's house</p>
+</footer>
 
-      if (document.body.classList.contains('dark-mode')) {
-        themeIcon.classList.replace('bi-sun-fill', 'bi-moon-stars-fill');
-      } else {
-        themeIcon.classList.replace('bi-moon-stars-fill', 'bi-sun-fill');
-      }
-    });
-  </script>
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-  <!-- Firebase -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDFJm4xyAXFPkCLuJK4Q7U5CQi5vyur5ZA",
+    authDomain: "buonomo-s-menu.firebaseapp.com",
+    projectId: "buonomo-s-menu",
+    storageBucket: "buonomo-s-menu.firebasestorage.app",
+    messagingSenderId: "288056046537",
+    appId: "1:288056046537:web:c28823516d7ddc4951ae18"
+  };
 
-    // Configura Firebase (INSERISCI I TUOI DATI QUI)
-    const firebaseConfig = {
-      apiKey: "AIzaSyDFJm4xyAXFPkCLuJK4Q7U5CQi5vyur5ZA",
-      authDomain: "buonomo-s-menu.firebaseapp.com",
-      projectId: "buonomo-s-menu",
-      storageBucket: "buonomo-s-menu.firebasestorage.app",
-      messagingSenderId: "288056046537",
-      appId: "1:288056046537:web:c28823516d7ddc4951ae18"
-    };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const drinkContainer = document.querySelector(".row");
+  const drinkList = document.getElementById("drinkList");
+  const loginForm = document.getElementById("loginForm");
+  const addDrinkForm = document.getElementById("addDrinkForm");
 
-    async function caricaDrink() {
-      const querySnapshot = await getDocs(collection(db, "drink"));
-      drinkContainer.innerHTML = formHTML; // Mostra il form e poi i drink
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        const col = document.createElement("div");
-        col.className = "col-md-6 mb-4";
-        col.innerHTML = `
-          <div class="card p-3">
-            <h3>${data.nome}</h3>
-            <ul class="list-unstyled">
-              ${data.ingredienti.map(i => `<li>${i}</li>`).join('')}
-            </ul>
-          </div>
-        `;
-        drinkContainer.appendChild(col);
-      });
-    }
-
-    // Form HTML
-    const formHTML = `
-      <div class="card p-4 mb-5">
-        <h4>Aggiungi un nuovo drink</h4>
-        <form id="addDrinkForm" class="row g-3 mt-2">
-          <div class="col-md-4">
-            <input type="text" class="form-control" id="nomeDrink" placeholder="Nome drink" required>
-          </div>
-          <div class="col-md-8">
-            <input type="text" class="form-control" id="ingredientiDrink" placeholder="Ingredienti separati da virgola" required>
-          </div>
-          <div class="col-12 text-end">
-            <button type="submit" class="btn btn-primary">Salva</button>
-          </div>
-        </form>
+  function renderDrinks(drinks) {
+    drinkList.innerHTML = drinks.map(drink => `
+      <div class="col-md-6 mb-4">
+        <div class="card p-3">
+          <h3>${drink.name}</h3>
+          <ul class="list-unstyled">
+            ${drink.ingredients.map(i => `<li>${i}</li>`).join('')}
+          </ul>
+        </div>
       </div>
-    `;
+    `).join("");
+  }
 
-    document.addEventListener("submit", async (e) => {
-      if (e.target.id === "addDrinkForm") {
-        e.preventDefault();
-        const nome = document.getElementById("nomeDrink").value.trim();
-        const ingredienti = document.getElementById("ingredientiDrink").value.split(',').map(i => i.trim());
+  async function fetchDrinks() {
+    const querySnapshot = await getDocs(collection(db, "drinks"));
+    const drinks = querySnapshot.docs.map(doc => doc.data());
+    renderDrinks(drinks);
+  }
 
-        if (nome && ingredienti.length) {
-          await addDoc(collection(db, "drink"), { nome, ingredienti });
-          document.getElementById("addDrinkForm").reset();
-          caricaDrink();
-        }
-      }
-    });
+  window.login = async function () {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    const email = `${username}@buonomo.fake`;
 
-    caricaDrink();
-  </script>
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (e) {
+      alert("Login fallito: " + e.message);
+    }
+  }
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  window.addDrink = async function () {
+    const name = document.getElementById("drinkName").value;
+    const ingredients = document.getElementById("drinkIngredients").value.split("\n").map(s => s.trim()).filter(Boolean);
+    if (!name || ingredients.length === 0) return;
+
+    try {
+      await addDoc(collection(db, "drinks"), { name, ingredients });
+      fetchDrinks();
+    } catch (e) {
+      alert("Errore: " + e.message);
+    }
+  }
+
+  onAuthStateChanged(auth, (user) => {
+    if (user && user.email === "drgslayer@buonomo.fake") {
+      loginForm.style.display = "none";
+      addDrinkForm.style.display = "block";
+    }
+  });
+
+  fetchDrinks();
+</script>
+
+<!-- Tema chiaro/scuro -->
+<script>
+  const themeSwitch = document.getElementById('themeSwitch');
+  const themeIcon = document.getElementById('themeIcon');
+
+  themeSwitch.addEventListener('change', function () {
+    document.body.classList.toggle('dark-mode');
+    document.body.classList.toggle('bg-light');
+    document.body.classList.toggle('text-dark');
+
+    if (document.body.classList.contains('dark-mode')) {
+      themeIcon.classList.replace('bi-sun-fill', 'bi-moon-stars-fill');
+    } else {
+      themeIcon.classList.replace('bi-moon-stars-fill', 'bi-sun-fill');
+    }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
